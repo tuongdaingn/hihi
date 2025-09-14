@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nút bấm hiển thị ảnh</title>
+  <style>
+    /* Reset nhẹ */
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(180deg,#f6f8fb,#e9eef6);
+      color: #111827;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(10,20,40,0.08);
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 { margin: 0 0 12px; font-size: 20px; }
+    p { margin: 0 0 18px; color: #4b5563; }
+
+    /* Nút */
+    .btn {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      background: linear-gradient(90deg,#2563eb,#4f46e5);
+      color: white;
+      box-shadow: 0 6px 14px rgba(79,70,229,0.22);
+      transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+      user-select: none;
+    }
+    .btn:active { transform: translateY(1px) scale(.997); }
+    .btn[aria-pressed="true"] {
+      background: linear-gradient(90deg,#0ea5e9,#7c3aed);
+    }
+
+    /* Vùng ảnh */
+    .image-wrap {
+      margin-top: 18px;
+      height: 0;                /* default hidden (so it doesn't take space) */
+      overflow: hidden;
+      transition: height .28s cubic-bezier(.2,.9,.3,1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .image-wrap.show {
+      height: 320px; /* chiều cao khi hiện — có thể thay đổi */
+    }
+
+    .image {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 8px;
+      box-shadow: 0 6px 18px rgba(15,23,42,0.08);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+    .image-wrap.show .image {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Hỗ trợ responsive: giảm chiều cao cho màn nhỏ */
+    @media (max-width:420px){
+      .image-wrap.show{ height: 220px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <h1></h1>
+    <p>Bấm để biết người xinh đẹp nhất thế giới.</p>
+
+    <!-- Nút: dùng aria-pressed cho accessibility -->
+    <button id="toggleBtn" class="btn" aria-pressed="false" aria-controls="photo" type="button">
+      Hiển thị ảnh
+    </button>
+
+    <!-- Vùng chứa ảnh -->
+    <div id="photo" class="image-wrap" aria-hidden="true">
+      <!-- Ảnh SVG nhúng (không cần mạng). Thay src bằng link ảnh nếu muốn. -->
+      <img
+        class="image"
+        id="photoImg"
+        src="/baccacf7-b598-4998-bb5c-15d6c08c7ab6.jpg"
+        alt="Ảnh minh họa — ví dụ (SVG nhúng)" />
+    </div>
+  </main>
+
+  <script>
+    // JS: toggle show/hide, cập nhật accessibility attrs, thay đổi text nút
+    (function(){
+      const btn = document.getElementById('toggleBtn');
+      const photoWrap = document.getElementById('photo');
+
+      // Khi click: toggle class .show
+      btn.addEventListener('click', () => {
+        const showing = photoWrap.classList.toggle('show');
+
+        // Cập nhật aria và text
+        photoWrap.setAttribute('aria-hidden', !showing);
+        btn.setAttribute('aria-pressed', String(showing));
+        btn.textContent = showing ? 'Ẩn ảnh' : 'Hiển thị ảnh';
+
+        // Nếu vừa hiện, focus ảnh để keyboard users có thể thấy
+        if (showing) {
+          // gợi ý: focus vào ảnh (không phá layout)
+          const img = document.getElementById('photoImg');
+          // đảm bảo ảnh có tabindex để focus
+          img.setAttribute('tabindex','-1');
+          img.focus({preventScroll:true});
+        }
+      });
+
+      // Bổ sung: cho phép nhấn Enter/Space khi nút có focus (button hỗ trợ sẵn, nhưng giữ để chắc)
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          btn.click();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
